@@ -63,24 +63,23 @@ def draw_centroids_on_image(output_image, json_results):
 
 
 if __name__ == "__main__":    
-    #Start reading camera feed (https://answers.opencv.org/question/227535/solvedassertion-error-in-video-capturing/))
-    cap = cv2.VideoCapture(0)
-    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
-    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
-
     while(1):
         try:
+            #Start reading camera feed (https://answers.opencv.org/question/227535/solvedassertion-error-in-video-capturing/))
+            cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+            cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
+            cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
+   
             #Now Place the base_plate_tool on the surface below the camera.
             while(1):
-                check ,frame = cap.read()
+                _,frame = cap.read()
                 #frame = undistortImage(frame)
                 #cv2.imshow("Live" , frame)
                 k = cv2.waitKey(5)
                 if k == 27: #exit by pressing Esc key
                     cv2.destroyAllWindows()
                     sys.exit()
-                #if k == 13: #execute detection by pressing Enter key
-                # print(cap.isOpened())
+                #if k == 13: #execute detection by pressing Enter key           
                 image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB) # OpenCV image (BGR to RGB)
                 
                 # Inference
@@ -89,6 +88,7 @@ if __name__ == "__main__":
                 # Results
                 #results.print()  # .print() , .show(), .save(), .crop(), .pandas(), etc.
                 #results.show()
+
                 results.xyxy[0]  # im predictions (tensor)
                 results.pandas().xyxy[0]  # im predictions (pandas)
                 #      xmin    ymin    xmax   ymax  confidence  class    name
@@ -99,8 +99,9 @@ if __name__ == "__main__":
                 #Results in JSON
                 json_results = results.pandas().xyxy[0].to_json(orient="records") # im predictions (JSON)
                 #print(json_results)
+                
                 results.render()  # updates results.imgs with boxes and labels                    
-                output_image = results.ims[0] #output image after rendering
+                output_image = results.imgs[0] #output image after rendering
                 output_image = cv2.cvtColor(output_image, cv2.COLOR_RGB2BGR)
                 
                 output_image = draw_centroids_on_image(output_image, json_results) # Draw Centroids on the deteted objects and returns updated image
@@ -116,3 +117,6 @@ if __name__ == "__main__":
             sys.exit()
     
     cv2.destroyAllWindows()
+    
+    
+    
